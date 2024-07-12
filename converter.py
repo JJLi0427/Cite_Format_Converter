@@ -40,33 +40,33 @@ def extract_ieee_parts(ieee_citation):
 
 def format_authors(authors, format_type):
     names = authors.split(' and ')
-    if format_type == "gb":
+    if format_type == "GB":
         return ', '.join(names)
-    elif format_type == "apa":
+    elif format_type == "APA":
         return ', '.join(names)
-    elif format_type == "mla":
+    elif format_type == "MLA":
         return ', and '.join(names)
     return authors
 
 def ieee_to_gb(author, title, booktitle, year, pages, doi):
-    formatted_authors = format_authors(author, "gb")
+    formatted_authors = format_authors(author, "GB")
     return f"{formatted_authors}. {title}[C]//{booktitle}, {year}: {pages}. DOI: {doi}."
 
 def ieee_to_apa(author, title, booktitle, year, pages, doi):
-    formatted_authors = format_authors(author, "apa")
+    formatted_authors = format_authors(author, "APA")
     return f"{formatted_authors}. ({year}). {title}. In {booktitle} (pp. {pages.split('-')[0]}-{pages.split('-')[1]}). DOI: {doi}."
 
 def ieee_to_mla(author, title, booktitle, year, pages, doi):
-    formatted_authors = format_authors(author, "mla")
+    formatted_authors = format_authors(author, "MLA")
     return f"{formatted_authors}. \"{title}.\" {booktitle}, {year}, pp. {pages}. DOI: {doi}."
 
 def convert_ieee_citation(ieee_citation, format_type):
     author, title, booktitle, year, pages, doi = extract_ieee_parts(ieee_citation)
-    if format_type == "gb":
+    if format_type == "GB":
         return ieee_to_gb(author, title, booktitle, year, pages, doi)
-    elif format_type == "apa":
+    elif format_type == "APA":
         return ieee_to_apa(author, title, booktitle, year, pages, doi)
-    elif format_type == "mla":
+    elif format_type == "MLA":
         return ieee_to_mla(author, title, booktitle, year, pages, doi)
     return "Unsupported format type"
 
@@ -116,14 +116,14 @@ load_history()
 # Create main window
 root = tk.Tk()
 root.title("IEEE Citation Converter")
-root.geometry("600x600")
+root.geometry("560x560")
 
 # Create frames
 main_frame = tk.Frame(root)
 history_frame = tk.Frame(root)
 
 # Load icon
-icon = Image.open("converter.icns")
+icon = Image.open("./photos/converter.icns")
 icon = icon.resize((100, 100), Image.LANCZOS)
 icon = ImageTk.PhotoImage(icon)
 
@@ -143,9 +143,9 @@ result_text.pack(pady=5)
 
 format_label = tk.Label(main_frame, text="Select Format:")
 format_label.pack(pady=5)
-format_var = tk.StringVar(value="gb")
+format_var = tk.StringVar(value="GB")
 format_combobox = ttk.Combobox(main_frame, textvariable=format_var)
-format_combobox['values'] = ("gb", "apa", "mla")
+format_combobox['values'] = ("GB", "APA", "MLA")
 format_combobox.pack(pady=5)
 
 convert_button = tk.Button(main_frame, text="Convert", command=convert_citation)
@@ -159,7 +159,7 @@ icon_label_history = tk.Label(history_frame, image=icon)
 icon_label_history.pack(pady=10)
 
 history_listbox = tk.Listbox(history_frame, height=15, width=80)
-history_listbox.pack(pady=10)
+history_listbox.pack(pady=20, padx=40)
 
 copy_button = tk.Button(history_frame, text="Reuse Citation", command=copy_selected_citation)
 copy_button.pack(pady=5)
@@ -167,7 +167,7 @@ copy_button.pack(pady=5)
 clear_button = tk.Button(history_frame, text="Clear History", command=clear_history)
 clear_button.pack(pady=5)
 
-close_button = tk.Button(history_frame, text="Back", command=show_main_frame)
+close_button = tk.Button(history_frame, text="Back to Home", command=show_main_frame)
 close_button.pack(pady=5)
 
 # Pack the main frame initially
