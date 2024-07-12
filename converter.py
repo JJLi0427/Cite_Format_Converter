@@ -6,10 +6,10 @@ from datetime import datetime
 import json
 import os
 
-# 初始化转换历史记录列表
+# Initialize the conversion history
 conversion_history = []
 
-# 日志文件路径
+# Load and save the conversion history
 log_file_path = "conversion_history.log"
 
 def load_history():
@@ -22,12 +22,12 @@ def save_history():
     with open(log_file_path, "w") as file:
         json.dump(conversion_history, file)
 
-def clear_history(history_window):
+def clear_history():
     global conversion_history
     conversion_history = []
     save_history()
     messagebox.showinfo("Info", "History cleared successfully.")
-    history_window.destroy()
+    show_main_frame()
 
 def extract_ieee_parts(ieee_citation):
     author = re.search(r'author={(.*?)}', ieee_citation).group(1)
@@ -80,7 +80,7 @@ def convert_citation():
         converted_citation = convert_ieee_citation(ieee_citation, format_type)
         result_text.delete("1.0", tk.END)
         result_text.insert(tk.END, converted_citation)
-        # 添加到转换历史记录
+        # Add the conversion to the history
         conversion_history.append({
             "citation": ieee_citation,
             "title": re.search(r'title={(.*?)}', ieee_citation).group(1),
@@ -91,34 +91,26 @@ def convert_citation():
         messagebox.showerror("Error", str(e))
 
 def show_history():
-    history_window = tk.Toplevel(root)
-    history_window.title("Conversion History")
-    history_window.geometry("600x600")
+    main_frame.pack_forget()
+    history_frame.pack(fill="both", expand=True)
 
-    history_listbox = tk.Listbox(history_window, height=15, width=80)
-    history_listbox.pack(pady=10)
-
+    history_listbox.delete(0, tk.END)
     for record in conversion_history:
         history_listbox.insert(tk.END, f"{record['title']} (Used on: {record['time']})")
 
-    def copy_selected_citation():
-        selected_index = history_listbox.curselection()
-        if selected_index:
-            selected_citation = conversion_history[selected_index[0]]['citation']
-            ieee_entry.delete("1.0", tk.END)
-            ieee_entry.insert(tk.END, selected_citation)
-            history_window.destroy()
+def show_main_frame():
+    history_frame.pack_forget()
+    main_frame.pack(fill="both", expand=True)
 
-    copy_button = tk.Button(history_window, text="Reuse Citation", command=copy_selected_citation)
-    copy_button.pack(pady=5)
+def copy_selected_citation():
+    selected_index = history_listbox.curselection()
+    if selected_index:
+        selected_citation = conversion_history[selected_index[0]]['citation']
+        ieee_entry.delete("1.0", tk.END)
+        ieee_entry.insert(tk.END, selected_citation)
+        show_main_frame()
 
-    clear_button = tk.Button(history_window, text="Clear History", command=lambda: clear_history(history_window))
-    clear_button.pack(pady=5)
-
-    close_button = tk.Button(history_window, text="Close Window", command=history_window.destroy)
-    close_button.pack(pady=5)
-
-# 加载历史记录
+# Load log file
 load_history()
 
 # Create main window
@@ -126,42 +118,60 @@ root = tk.Tk()
 root.title("IEEE Citation Converter")
 root.geometry("600x600")
 
-# Load and resize the icon
+# Create frames
+main_frame = tk.Frame(root)
+history_frame = tk.Frame(root)
+
+# Load icon
 icon = Image.open("converter.icns")
 icon = icon.resize((100, 100), Image.LANCZOS)
 icon = ImageTk.PhotoImage(icon)
 
-# Create a label to display the icon
-icon_label = tk.Label(root, image=icon)
+# Main frame widgets
+icon_label = tk.Label(main_frame, image=icon)
 icon_label.pack(pady=10)
 
-# IEEE Citation input
-ieee_label = tk.Label(root, text="IEEE Citation:")
+ieee_label = tk.Label(main_frame, text="IEEE Citation:")
 ieee_label.pack(pady=5)
-ieee_entry = tk.Text(root, height=5, width=50)
+ieee_entry = tk.Text(main_frame, height=5, width=50)
 ieee_entry.pack(pady=5)
 
-# Format selection
-format_label = tk.Label(root, text="Select Format:")
+result_label = tk.Label(main_frame, text="Converted Citation:")
+result_label.pack(pady=5)
+result_text = tk.Text(main_frame, height=5, width=50)
+result_text.pack(pady=5)
+
+format_label = tk.Label(main_frame, text="Select Format:")
 format_label.pack(pady=5)
-format_var = tk.StringVar(value="gb")  # Set default value to "gb"
-format_combobox = ttk.Combobox(root, textvariable=format_var)
+format_var = tk.StringVar(value="gb")
+format_combobox = ttk.Combobox(main_frame, textvariable=format_var)
 format_combobox['values'] = ("gb", "apa", "mla")
 format_combobox.pack(pady=5)
 
-# Convert button
-convert_button = tk.Button(root, text="Convert", command=convert_citation)
+convert_button = tk.Button(main_frame, text="Convert", command=convert_citation)
 convert_button.pack(pady=10)
 
-# Result display
-result_label = tk.Label(root, text="Converted Citation:")
-result_label.pack(pady=5)
-result_text = tk.Text(root, height=5, width=50)
-result_text.pack(pady=5)
-
-# History button
-history_button = tk.Button(root, text="History", command=show_history)
+history_button = tk.Button(main_frame, text="History", command=show_history)
 history_button.pack(pady=10)
+
+# History frame widgets
+icon_label_history = tk.Label(history_frame, image=icon)
+icon_label_history.pack(pady=10)
+
+history_listbox = tk.Listbox(history_frame, height=15, width=80)
+history_listbox.pack(pady=10)
+
+copy_button = tk.Button(history_frame, text="Reuse Citation", command=copy_selected_citation)
+copy_button.pack(pady=5)
+
+clear_button = tk.Button(history_frame, text="Clear History", command=clear_history)
+clear_button.pack(pady=5)
+
+close_button = tk.Button(history_frame, text="Back", command=show_main_frame)
+close_button.pack(pady=5)
+
+# Pack the main frame initially
+main_frame.pack(fill="both", expand=True)
 
 # Start the main loop
 root.mainloop()
