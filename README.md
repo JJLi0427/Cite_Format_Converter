@@ -37,7 +37,7 @@ Converter is a Python-based application designed to help you convert citations a
 
 1. **Run the application**:
     ```sh
-    python converter.py
+    python ./main.py
     ```
 
 2. **Convert Citations**:
