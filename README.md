@@ -71,4 +71,4 @@ For any questions or suggestions, please open an issue or contact me at <2366876
 
 ## TODO
 
-* -[] Pack it to be an application on MacOS and Windows
+* -[ ] Pack it to be an application on MacOS and Windows
